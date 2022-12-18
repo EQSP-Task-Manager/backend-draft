@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+
+  db:
+    container_name: task-manager-db
+    image: postgres:14
+    environment:
+      POSTGRES_USER: maxim
+      POSTGRES_PASSWORD: maxim
+      POSTGRES_DB: task-manager
+    ports:
+      - "5499:5432"
+    volumes:
+      - data:/var/lib/postgresql/data
+
+volumes:
+  data:
