@@ -2,12 +2,24 @@ version: "3"
 
 services:
 
+  api:
+    container_name: task-manager-api
+    build: .
+    environment:
+      TM_DB_USER: {{DB_USER}}
+      TM_DB_PASSWORD: {{DB_PASSWORD}}
+      TM_DB_HOST: task-manager-db
+      TM_DB_PORT: 5432
+      TM_DB_NAME: task-manager
+    ports:
+      - "8080:8080"
+
   db:
     container_name: task-manager-db
     image: postgres:14
     environment:
-      POSTGRES_USER: maxim
-      POSTGRES_PASSWORD: maxim
+      POSTGRES_USER: {{DB_USER}}
+      POSTGRES_PASSWORD: {{DB_PASSWORD}}
       POSTGRES_DB: task-manager
     ports:
       - "5499:5432"

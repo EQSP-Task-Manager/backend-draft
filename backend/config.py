@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from configargparse import ArgumentParser, YAMLConfigFileParser
 
-ENV_VAR_PREFIX = 'TMAPI_'
+ENV_VAR_PREFIX = 'TM_'
 
 
 @dataclass
