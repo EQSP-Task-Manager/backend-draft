@@ -66,3 +66,23 @@ jobs:
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+      - name: Create file with private SSH key
+        run: |
+          cd ansible/
+          echo ${{ secrets.SERVER_SSH_PRIVATE_KEY }} > id_ed25519
+      - name: Compose YML file with container specific variables
+        run: |
+          cd ansible/
+          echo "ansible_user:             ${{ secrets.SERVER_USER }}" >> vars.yml
+          echo "ansible_private_key_file: id_ed25519" >> vars.yml
+          echo "REGISTRY_USER:            ${{ secrets.REGISTRY_USER }}" >> vars.yml
+          echo "REGISTRY_PASSWORD:        ${{ secrets.REGISTRY_PASSWORD }}" >> vars.yml
+      - name: Install Ansible and ping server
+        run: |
+          cd ansible/
+          pip install ansible
+          ansible -m ping yc-server --extra-vars "@vars.yml"
+      - name: Run Ansible playbook
+        run: |
+          cd ansible/
+          ansible-playbook playbook.yml --extra-vars "@vars.yml"
