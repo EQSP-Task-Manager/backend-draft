@@ -50,7 +50,7 @@ jobs:
   
   build-and-push:
     runs-on: ubuntu-latest
-    needs: [run-linter, run-tests]
+    needs: run-tests
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -66,6 +66,11 @@ jobs:
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+  provision-server:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    steps:
       - name: Create file with private SSH key
         run: |
           cd ansible/
@@ -87,3 +92,31 @@ jobs:
         run: |
           cd ansible/
           ansible-playbook playbook.yml --extra-vars "@vars.yml"
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: provision-server
+    steps:
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
+          envs: IMAGE_NAME,REGISTRY,CONTAINER_NAME
+          script: |
+            # Stop running container
+            docker ps | grep ${{ env.CONTAINER_NAME }} && docker stop ${{ env.CONTAINER_NAME }}
+            # Remove old container
+            docker ps -a | grep ${{ env.CONTAINER_NAME }} && docker rm ${{ env.CONTAINER_NAME }}
+            # Run new container from a new image
+            docker run \
+            -e TM_DB_USER=${{ secrets.DB_USER }} \
+            -e TM_DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            -e TM_DB_HOST=${{ secrets.DB_HOST }} \
+            -e TM_DB_PORT=${{ secrets.DB_PORT }} \
+            -e TM_DB_NAME=${{ secrets.DB_NAME }} \
+            -dti \
+            --restart always \
+            --name ${{ env.CONTAINER_NAME }} \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
