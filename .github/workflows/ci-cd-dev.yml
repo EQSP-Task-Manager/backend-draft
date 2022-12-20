@@ -70,7 +70,7 @@ jobs:
         run: |
           cd ansible/
           touch id_ed25519 && chmod 600 id_ed25519
-          echo ${{ secrets.SERVER_SSH_PRIVATE_KEY }} > id_ed25519
+          echo "${{ secrets.SERVER_SSH_PRIVATE_KEY }}" > id_ed25519
       - name: Compose YML file with container specific variables
         run: |
           cd ansible/
