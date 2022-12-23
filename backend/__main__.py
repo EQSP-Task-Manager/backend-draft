@@ -1,6 +1,5 @@
 import logging
 from functools import partial
-import os
 
 from aiohttp import web
 from sqlalchemy.ext.asyncio import create_async_engine
