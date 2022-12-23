@@ -2,8 +2,6 @@ from dataclasses import dataclass
 
 from configargparse import ArgumentParser, YAMLConfigFileParser
 
-ENV_VAR_PREFIX = 'TM_'
-
 
 @dataclass
 class Config:
@@ -50,7 +48,7 @@ def _setup_args_parser() -> ArgumentParser:
         config_file_parser_class=YAMLConfigFileParser,
         args_for_setting_config_path=['-c', '--config-file'],
         config_arg_help_message='Config file path',
-        auto_env_var_prefix=ENV_VAR_PREFIX
+        auto_env_var_prefix=''
     )
 
     api_group = parser.add_argument_group('API')

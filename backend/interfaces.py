@@ -3,10 +3,16 @@ from abc import ABC, abstractmethod
 from pydantic import UUID4
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from .models import Task
+from .models import Task, UserInfo
 
 
-class Service(ABC):
+class AuthService(ABC):
+    @abstractmethod
+    async def get_user_info(self, oauth_token: str) -> UserInfo:
+        raise NotImplementedError()
+
+
+class TaskService(ABC):
     @abstractmethod
     async def get_tasks(self, user_id: str) -> tuple[list[Task], int]:
         raise NotImplementedError()
@@ -28,7 +34,7 @@ class Service(ABC):
         raise NotImplementedError()
 
 
-class Repository(ABC):
+class TaskRepository(ABC):
     @abstractmethod
     async def get_tasks(self, conn: AsyncConnection, user_id: str) -> list[Task]:
         raise NotImplementedError()

@@ -1,3 +1,3 @@
-from .storage import TaskRepository
+from .repo import TaskRepository
 
 __all__ = ('TaskRepository',)

@@ -1,13 +1,13 @@
 from pydantic import UUID4
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from backend.interfaces import Service, Repository
+from backend import interfaces
 from backend.models import Task
 from .errors import OutdatedRevisionError
 
 
-class TaskService(Service):
-    def __init__(self, engine: AsyncEngine, repo: Repository):
+class TaskService(interfaces.TaskService):
+    def __init__(self, engine: AsyncEngine, repo: interfaces.TaskRepository):
         self._engine = engine
         self._repo = repo
 

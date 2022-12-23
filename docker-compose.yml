@@ -4,15 +4,19 @@ services:
 
   api:
     container_name: task-manager-api
-    build: .
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
     environment:
-      TM_DB_USER: ${DB_USER}
-      TM_DB_PASSWORD: ${DB_PASSWORD}
-      TM_DB_HOST: task-manager-db
-      TM_DB_PORT: 5432
-      TM_DB_NAME: task-manager
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: task-manager-db
+      DB_PORT: 5432
+      DB_NAME: task-manager
     ports:
       - "8080:8080"
+    depends_on:
+      - db
 
   db:
     container_name: task-manager-db
@@ -22,7 +26,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: task-manager
     ports:
-      - "5499:5432"
+      - "6432:5432"
     volumes:
       - data:/var/lib/postgresql/data
 

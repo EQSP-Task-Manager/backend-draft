@@ -25,7 +25,7 @@ tasks_table = Table(
     # Identifiers
     Column('id', Integer, primary_key=True, autoincrement=True),
     Column('uuid', UUID, nullable=False),
-    Column('user_id', UUID, nullable=False),
+    Column('user_id', Text, nullable=False),
 
     # Main fields
     Column('title', Text, nullable=False),
@@ -48,6 +48,6 @@ revisions_table = Table(
     'revisions',
     metadata,
 
-    Column('user_id', UUID, primary_key=True),
+    Column('user_id', Text, primary_key=True),
     Column('revision', Integer, nullable=False)
 )

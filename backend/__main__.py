@@ -1,11 +1,12 @@
 import logging
 from functools import partial
+import os
 
 from aiohttp import web
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from .api import register_handlers, MIDDLEWARES
-from .app import TaskService
+from .app import AuthService, TaskService
 from .config import parse_config, Config
 from .logger import setup_logger
 from .storage import TaskRepository
@@ -17,10 +18,17 @@ async def setup(app: web.Application, db_config: Config.DB):
     db_url = 'postgresql+asyncpg://{}:{}@{}:{}/{}'
     db_url = db_url.format(db_config.user, db_config.password, db_config.host, db_config.port, db_config.name)
     db_engine = create_async_engine(db_url)
-    repo = TaskRepository()
-    app['service'] = TaskService(db_engine, repo)
+    task_repo = TaskRepository()
+    task_service = TaskService(db_engine, task_repo)
+
+    auth_service = AuthService()
+
+    app['task_service'] = task_service
+    app['auth_service'] = auth_service
+
     yield
-    await db_engine.dispose()
+    await db_engine.close()
+    await auth_service.close()
 
 
 def main():

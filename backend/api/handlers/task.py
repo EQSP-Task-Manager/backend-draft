@@ -2,37 +2,20 @@ from typing import Any
 
 from aiohttp import web
 
+from backend.api.models import DeleteTaskRequest, UpdateTasksRequest
 from backend.app.errors import OutdatedRevisionError
-from backend.interfaces import Service
+from backend.interfaces import TaskService
 from backend.models import Task
-from .models import DeleteTaskRequest, UpdateTasksRequest
-
-DEVICE_ID_HEADER = "X-Device-Id"
-REVISION_HEADER = "X-Revision"
+from .base import ProtectedHandler
 
 
-class BaseHandler(web.View):
-    def __init__(self, request: web.Request):
-        if request.headers.get(DEVICE_ID_HEADER) is None:
-            raise web.HTTPForbidden(text=f'{DEVICE_ID_HEADER} header is not provided')
-        self._device_id = request.headers[DEVICE_ID_HEADER]
-        self._user_id = '3c719570-d434-4175-b9fe-278e08567fd5'
-        super().__init__(request)
+class TaskHandler(ProtectedHandler):
+    PATH = '/api/tasks'
 
     @property
-    def device_id(self) -> str:
-        return self._device_id
+    def service(self) -> TaskService:
+        return self.request.app['task_service']
 
-    @property
-    def user_id(self) -> str:
-        return self._user_id
-
-    @property
-    def service(self) -> Service:
-        return self.request.app['service']
-
-
-class TaskHandler(BaseHandler):
     async def get(self) -> tuple[int, Any]:
         tasks, revision = await self.service.get_tasks(self.user_id)
         for i, task in enumerate(tasks):

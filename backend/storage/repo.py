@@ -2,12 +2,12 @@ from pydantic import UUID4
 from sqlalchemy.ext.asyncio import AsyncConnection
 from sqlalchemy.sql import select, insert, update, delete, and_
 
-from backend.interfaces import Repository
+from backend import interfaces
 from backend.models import Task
 from .db.schema import tasks_table, revisions_table
 
 
-class TaskRepository(Repository):
+class TaskRepository(interfaces.TaskRepository):
     async def get_tasks(self, conn: AsyncConnection, user_id: str) -> list[Task]:
         query = select([
             tasks_table.c.uuid,
