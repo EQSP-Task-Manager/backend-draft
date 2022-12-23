@@ -113,11 +113,12 @@ jobs:
             docker ps -a | grep ${{ env.CONTAINER_NAME }} && docker rm ${{ env.CONTAINER_NAME }}
             # Run new container from a new image
             docker run \
-            -e TM_DB_USER=${{ secrets.DB_USER }} \
-            -e TM_DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            -e TM_DB_HOST=${{ secrets.DB_HOST }} \
-            -e TM_DB_PORT=${{ secrets.DB_PORT }} \
-            -e TM_DB_NAME=${{ secrets.DB_NAME }} \
+            -e DB_USER=${{ secrets.DB_USER }} \
+            -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            -e DB_HOST=${{ secrets.DB_HOST }} \
+            -e DB_PORT=${{ secrets.DB_PORT }} \
+            -e DB_NAME=${{ secrets.DB_NAME }} \
+            -p 8080:8080 \
             -dti \
             --restart always \
             --name ${{ env.CONTAINER_NAME }} \
