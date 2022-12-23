@@ -9,13 +9,15 @@ ALEMBIC_INI_PATH = CURR_DIR.joinpath('alembic.ini')
 ALEMBIC_DIR_PATH = CURR_DIR.joinpath('alembic')
 
 
-def _setup_alembic_config(alembic_args: Namespace) -> Config:
+def setup_alembic_config(alembic_args: Namespace) -> Config:
     if not os.path.isabs(alembic_args.config):
         alembic_args.config = str(ALEMBIC_INI_PATH)
 
-    alembic_config = Config(file_=alembic_args.config,
-                            ini_section=alembic_args.name,
-                            cmd_opts=alembic_args)
+    alembic_config = Config(
+        file_=alembic_args.config,
+        ini_section=alembic_args.name,
+        cmd_opts=alembic_args
+    )
 
     if not os.path.isabs(alembic_config.get_main_option('script_location')):
         alembic_config.set_main_option(
@@ -35,7 +37,7 @@ def main():
         alembic.parser.error('too few arguments')
         exit(128)
     else:
-        config = _setup_alembic_config(alembic_args)
+        config = setup_alembic_config(alembic_args)
         exit(alembic.run_cmd(config, alembic_args))
 
 
