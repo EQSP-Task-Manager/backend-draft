@@ -42,7 +42,10 @@ class AddTasksHandler(BaseTaskHandler):
     async def post(self) -> tuple[int, Any]:
         body = await self.request.json()
         data = AddTasksRequest(**body)
-        revision = await self.service.add_tasks(self.user_id, data.list, data.revision)
+        try:
+            revision = await self.service.add_tasks(self.user_id, data.list, data.revision)
+        except OutdatedRevisionError as e:
+            return web.HTTPConflict.status_code, {'revision': e.actual}
         return web.HTTPCreated.status_code, {'revision': revision}
 
 
