@@ -42,6 +42,42 @@ class TaskRepository(interfaces.TaskRepository):
             for row in rows
         ]
 
+    async def get_task(self, conn: AsyncConnection, user_id: str, task_id: UUID4) -> Task | None:
+        query = select([
+            tasks_table.c.uuid,
+            tasks_table.c.uuid,
+            tasks_table.c.title,
+            tasks_table.c.description,
+            tasks_table.c.done,
+            tasks_table.c.importance,
+            tasks_table.c.tags,
+            tasks_table.c.created_at,
+            tasks_table.c.changed_at,
+            tasks_table.c.deadline,
+            tasks_table.c.color,
+        ]).where(
+            and_(
+                tasks_table.c.user_id == user_id,
+                tasks_table.c.uuid == str(task_id)
+            )
+        )
+        result = await conn.execute(query)
+        row = result.fetchone()
+        if row is None:
+            return None
+        return Task(
+            id=row.uuid,
+            title=row.title,
+            description=row.description,
+            done=row.done,
+            importance=row.importance,
+            tags=row.tags,
+            created_at=row.created_at,
+            changed_at=row.changed_at,
+            deadline=row.deadline,
+            color=row.color
+        )
+
     async def get_revision(self, conn: AsyncConnection, user_id: str) -> int | None:
         query = select([revisions_table.c.revision]).where(revisions_table.c.user_id == user_id)
         result = await conn.execute(query)

@@ -8,6 +8,11 @@ class AddTasksRequest(BaseModel):
     revision: int
 
 
+class UpdateTaskRequest(BaseModel):
+    element: Task
+    revision: int
+
+
 class UpdateTasksRequest(BaseModel):
     list: list[Task]
     revision: int

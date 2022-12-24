@@ -2,11 +2,10 @@ from typing import Any
 
 from aiohttp import web
 
-from backend.app.errors import OutdatedRevisionError
+from backend.app.errors import OutdatedRevisionError, NonExistentTaskIDError
 from backend.interfaces import TaskService
-from backend.models import Task
 from .base import ProtectedHandler
-from ..models import AddTasksRequest, UpdateTasksRequest
+from ..models import AddTasksRequest, UpdateTaskRequest, UpdateTasksRequest
 
 
 class BaseTaskHandler(ProtectedHandler):
@@ -26,16 +25,19 @@ class GetTasksHandler(BaseTaskHandler):
 
 
 class GetTaskHandler(BaseTaskHandler):
-    PATH = '/api/task/{id}'
+    PATH = '/api/tasks/{id}'
 
     async def get(self) -> tuple[int, Any]:
         task_id = self.request.match_info['id']
-        task, revision = await self.service.get_task(self.user_id, task_id)
+        try:
+            task, revision = await self.service.get_task(self.user_id, task_id)
+        except NonExistentTaskIDError:
+            return web.HTTPNotFound.status_code, None
         return web.HTTPOk.status_code, {'element': task.dict(), 'revision': revision}
 
 
 class AddTasksHandler(BaseTaskHandler):
-    PATH = '/api/task'
+    PATH = '/api/tasks'
 
     async def post(self) -> tuple[int, Any]:
         body = await self.request.json()
@@ -58,8 +60,8 @@ class UpdateTaskHandler(BaseTaskHandler):
 
     async def put(self) -> tuple[int, Any]:
         body = await self.request.json()
-        task = Task(**body)
-        revision = await self.service.update_task(self.user_id, task)
+        data = UpdateTaskRequest(**body)
+        revision = await self.service.update_task(self.user_id, data.element)
         return web.HTTPOk.status_code, {'revision': revision}
 
 

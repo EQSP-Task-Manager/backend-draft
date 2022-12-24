@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from backend import interfaces
 from backend.models import Task
-from .errors import OutdatedRevisionError
+from .errors import OutdatedRevisionError, NonExistentTaskIDError
 
 
 class TaskService(interfaces.TaskService):
@@ -20,10 +20,19 @@ class TaskService(interfaces.TaskService):
             tasks = await self._repo.get_tasks(conn, user_id)
         return tasks, curr_revision
 
+    async def get_task(self, user_id: str, task_id: UUID4) -> tuple[Task, int]:
+        async with self._engine.begin() as conn:
+            curr_revision = await self._repo.get_revision(conn, user_id)
+            task = await self._repo.get_task(conn, user_id, task_id)
+            if task is None:
+                raise NonExistentTaskIDError(task_id)
+        return task, curr_revision
+
+
     async def add_tasks(self, user_id: str, tasks: list[Task]) -> int:
         async with self._engine.begin() as conn:
             curr_revision = await self._repo.get_revision(conn, user_id)
-            await self._repo.add_task(conn, user_id, tasks)
+            await self._repo.add_tasks(conn, user_id, tasks)
             if curr_revision is None:
                 curr_revision = 0
                 await self._repo.set_init_revision(conn, user_id)

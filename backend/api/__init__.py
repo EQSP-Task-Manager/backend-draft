@@ -12,13 +12,13 @@ MIDDLEWARES = [logging_middleware, error_middleware, auth_middleware, encoding_m
 
 
 def register_handlers(router: web.UrlDispatcher):
-    router.add_view(PingHandler.PATH, PingHandler)
-    router.add_view(GetTasksHandler.PATH, GetTaskHandler)
-    router.add_view(GetTaskHandler.PATH, GetTasksHandler)
-    router.add_view(AddTasksHandler.PATH, AddTasksHandler)
-    router.add_view(DeleteTaskHandler.PATH, DeleteTaskHandler)
-    router.add_view(UpdateTaskHandler.PATH, UpdateTaskHandler)
-    router.add_view(UpdateTasksHandler.PATH, UpdateTasksHandler)
+    router.add_get(PingHandler.PATH, PingHandler)
+    router.add_get(GetTasksHandler.PATH, GetTasksHandler)
+    router.add_get(GetTaskHandler.PATH, GetTaskHandler)
+    router.add_post(AddTasksHandler.PATH, AddTasksHandler)
+    router.add_delete(DeleteTaskHandler.PATH, DeleteTaskHandler)
+    router.add_put(UpdateTaskHandler.PATH, UpdateTaskHandler)
+    router.add_patch(UpdateTasksHandler.PATH, UpdateTasksHandler)
 
 
 __all__ = ('MIDDLEWARES', 'register_handlers')

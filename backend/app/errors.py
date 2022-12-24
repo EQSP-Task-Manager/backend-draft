@@ -1,4 +1,5 @@
 from aiohttp import ClientResponse
+from pydantic import UUID4
 
 
 class DomainError(Exception):
@@ -10,6 +11,12 @@ class OutdatedRevisionError(DomainError):
         self.got = passed_revision
         self.actual = actual_revision
         super().__init__(f'outdated revision: {self.got}, actual revision: {self.actual}')
+
+
+class NonExistentTaskIDError(DomainError):
+    def __init__(self, task_id: UUID4):
+        self.task_id = task_id
+        super().__init__(f'user does not have task with id {task_id}')
 
 
 class ExtServiceError(DomainError):
