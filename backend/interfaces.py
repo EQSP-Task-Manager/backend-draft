@@ -70,7 +70,3 @@ class TaskRepository(ABC):
     @abstractmethod
     async def delete_tasks(self, conn: AsyncConnection, user_id: str) -> int:
         raise NotImplementedError()
-
-    @abstractmethod
-    async def add_tasks(self, conn: AsyncConnection, user_id: str, tasks: list[Task]):
-        raise NotImplementedError()
