@@ -34,13 +34,13 @@ class TaskHandler(ProtectedHandler):
         revision = await self.service.delete_task(self.user_id, data.id)
         return web.HTTPOk.status_code, {'revision': revision}
 
-    async def patch(self) -> tuple[int, Any]:
+    async def put(self) -> tuple[int, Any]:
         body = await self.request.json()
         task = Task(**body)
         revision = await self.service.update_task(self.user_id, task)
         return web.HTTPOk.status_code, {'revision': revision}
 
-    async def put(self) -> tuple[int, Any]:
+    async def patch(self) -> tuple[int, Any]:
         body = await self.request.json()
         data = UpdateTasksRequest(**body)
         try:
