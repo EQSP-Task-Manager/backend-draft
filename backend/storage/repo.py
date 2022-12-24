@@ -11,7 +11,6 @@ class TaskRepository(interfaces.TaskRepository):
     async def get_tasks(self, conn: AsyncConnection, user_id: str) -> list[Task]:
         query = select([
             tasks_table.c.uuid,
-            tasks_table.c.uuid,
             tasks_table.c.title,
             tasks_table.c.description,
             tasks_table.c.done,
@@ -44,7 +43,6 @@ class TaskRepository(interfaces.TaskRepository):
 
     async def get_task(self, conn: AsyncConnection, user_id: str, task_id: UUID4) -> Task | None:
         query = select([
-            tasks_table.c.uuid,
             tasks_table.c.uuid,
             tasks_table.c.title,
             tasks_table.c.description,

@@ -42,7 +42,7 @@ class AddTasksHandler(BaseTaskHandler):
     async def post(self) -> tuple[int, Any]:
         body = await self.request.json()
         data = AddTasksRequest(**body)
-        revision = await self.service.add_tasks(self.user_id, data.list)
+        revision = await self.service.add_tasks(self.user_id, data.list, data.revision)
         return web.HTTPCreated.status_code, {'revision': revision}
 
 

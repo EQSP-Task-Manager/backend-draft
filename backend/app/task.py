@@ -28,15 +28,16 @@ class TaskService(interfaces.TaskService):
                 raise NonExistentTaskIDError(task_id)
         return task, curr_revision
 
-    async def add_tasks(self, user_id: str, tasks: list[Task]) -> int:
+    async def add_tasks(self, user_id: str, tasks: list[Task], revision: int) -> int:
         async with self._engine.begin() as conn:
             curr_revision = await self._repo.get_revision(conn, user_id)
-            await self._repo.add_tasks(conn, user_id, tasks)
             if curr_revision is None:
                 curr_revision = 0
                 await self._repo.set_init_revision(conn, user_id)
-            else:
-                await self._repo.increment_revision(conn, user_id)
+            if revision < curr_revision:
+                raise OutdatedRevisionError(revision, curr_revision)
+            await self._repo.add_tasks(conn, user_id, tasks)
+            await self._repo.increment_revision(conn, user_id)
         return curr_revision + 1
 
     async def delete_task(self, user_id: str, task_id: UUID4) -> int:
@@ -56,6 +57,9 @@ class TaskService(interfaces.TaskService):
     async def update_tasks(self, user_id: str, tasks: list[Task], revision: int):
         async with self._engine.begin() as conn:
             curr_revision = await self._repo.get_revision(conn, user_id)
+            if curr_revision is None:
+                curr_revision = 0
+                await self._repo.set_init_revision(conn, user_id)
             if revision < curr_revision:
                 raise OutdatedRevisionError(revision, curr_revision)
             await self._repo.delete_tasks(conn, user_id)

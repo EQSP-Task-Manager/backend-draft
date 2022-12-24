@@ -22,7 +22,7 @@ class TaskService(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    async def add_tasks(self, user_id: str, tasks: list[Task]) -> int:
+    async def add_tasks(self, user_id: str, tasks: list[Task], revision: int) -> int:
         raise NotImplementedError()
 
     @abstractmethod
