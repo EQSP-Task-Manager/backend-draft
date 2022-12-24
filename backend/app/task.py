@@ -23,7 +23,7 @@ class TaskService(interfaces.TaskService):
     async def add_tasks(self, user_id: str, tasks: list[Task]) -> int:
         async with self._engine.begin() as conn:
             curr_revision = await self._repo.get_revision(conn, user_id)
-            await self._repo.add_task(conn, user_id, task)
+            await self._repo.add_task(conn, user_id, tasks)
             if curr_revision is None:
                 curr_revision = 0
                 await self._repo.set_init_revision(conn, user_id)
