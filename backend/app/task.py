@@ -13,8 +13,11 @@ class TaskService(interfaces.TaskService):
 
     async def get_tasks(self, user_id: str) -> tuple[list[Task], int]:
         async with self._engine.begin() as conn:
-            tasks = await self._repo.get_tasks(conn, user_id)
             curr_revision = await self._repo.get_revision(conn, user_id)
+            if curr_revision is None:
+                curr_revision = 0
+                await self._repo.set_init_revision(conn, user_id)
+            tasks = await self._repo.get_tasks(conn, user_id)
         return tasks, curr_revision
 
     async def add_task(self, user_id: str, task: Task) -> int:
