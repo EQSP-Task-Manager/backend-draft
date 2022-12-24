@@ -2,19 +2,21 @@ from typing import Any
 
 from aiohttp import web
 
-from backend.api.models import DeleteTaskRequest, UpdateTasksRequest
 from backend.app.errors import OutdatedRevisionError
 from backend.interfaces import TaskService
 from backend.models import Task
 from .base import ProtectedHandler
+from ..models import AddTasksRequest, UpdateTasksRequest
 
 
-class TaskHandler(ProtectedHandler):
-    PATH = '/api/tasks'
-
+class BaseTaskHandler(ProtectedHandler):
     @property
     def service(self) -> TaskService:
         return self.request.app['task_service']
+
+
+class GetTasksHandler(BaseTaskHandler):
+    PATH = '/api/tasks'
 
     async def get(self) -> tuple[int, Any]:
         tasks, revision = await self.service.get_tasks(self.user_id)
@@ -22,23 +24,47 @@ class TaskHandler(ProtectedHandler):
             tasks[i] = task.dict()
         return web.HTTPOk.status_code, {'list': tasks, 'revision': revision}
 
+
+class GetTaskHandler(BaseTaskHandler):
+    PATH = '/api/task/{id}'
+
+    async def get(self) -> tuple[int, Any]:
+        task_id = self.request.match_info['id']
+        task, revision = await self.service.get_task(self.user_id, task_id)
+        return web.HTTPOk.status_code, {'element': task.dict(), 'revision': revision}
+
+
+class AddTasksHandler(BaseTaskHandler):
+    PATH = '/api/task'
+
     async def post(self) -> tuple[int, Any]:
         body = await self.request.json()
-        task = Task(**body)
-        revision = await self.service.add_task(self.user_id, task)
-        return web.HTTPCreated.status_code, {'element': task.dict(), 'revision': revision}
+        data = AddTasksRequest(**body)
+        revision = await self.service.add_tasks(self.user_id, data.list)
+        return web.HTTPCreated.status_code, {'revision': revision}
+
+
+class DeleteTaskHandler(BaseTaskHandler):
+    PATH = '/api/tasks/{id}'
 
     async def delete(self) -> tuple[int, Any]:
-        body = await self.request.json()
-        data = DeleteTaskRequest(**body)
-        revision = await self.service.delete_task(self.user_id, data.id)
+        task_id = self.request.match_info['id']
+        revision = await self.service.delete_task(self.user_id, task_id)
         return web.HTTPOk.status_code, {'revision': revision}
+
+
+class UpdateTaskHandler(BaseTaskHandler):
+    PATH = '/api/tasks'
 
     async def put(self) -> tuple[int, Any]:
         body = await self.request.json()
         task = Task(**body)
         revision = await self.service.update_task(self.user_id, task)
         return web.HTTPOk.status_code, {'revision': revision}
+
+
+class UpdateTasksHandler(BaseTaskHandler):
+    PATH = '/api/tasks'
 
     async def patch(self) -> tuple[int, Any]:
         body = await self.request.json()

@@ -18,7 +18,11 @@ class TaskService(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    async def add_task(self, user_id: str, task: Task) -> int:
+    async def get_task(self, user_id: str, task_id: UUID4) -> tuple[Task, int]:
+        raise NotImplementedError()
+
+    @abstractmethod
+    async def add_tasks(self, user_id: str, tasks: list[Task]) -> int:
         raise NotImplementedError()
 
     @abstractmethod
@@ -40,7 +44,7 @@ class TaskRepository(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    async def add_task(self, conn: AsyncConnection, user_id: str, task: Task) -> int:
+    async def add_tasks(self, conn: AsyncConnection, user_id: str, tasks: list[Task]) -> int:
         raise NotImplementedError()
 
     @abstractmethod

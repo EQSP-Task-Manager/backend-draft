@@ -20,7 +20,7 @@ class TaskService(interfaces.TaskService):
             tasks = await self._repo.get_tasks(conn, user_id)
         return tasks, curr_revision
 
-    async def add_task(self, user_id: str, task: Task) -> int:
+    async def add_tasks(self, user_id: str, tasks: list[Task]) -> int:
         async with self._engine.begin() as conn:
             curr_revision = await self._repo.get_revision(conn, user_id)
             await self._repo.add_task(conn, user_id, task)
