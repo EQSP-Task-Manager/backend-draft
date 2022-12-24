@@ -68,7 +68,7 @@ class TaskRepository(interfaces.TaskRepository):
         return result.inserted_primary_key.id
 
     async def set_init_revision(self, conn: AsyncConnection, user_id: str):
-        query = insert(revisions_table).values(user_id=user_id, revision=1)
+        query = insert(revisions_table).values(user_id=user_id, revision=0)
         await conn.execute(query)
 
     async def increment_revision(self, conn: AsyncConnection, user_id: str):
