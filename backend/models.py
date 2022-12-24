@@ -26,7 +26,7 @@ class Task(BaseModel):
     deadline: datetime | None = None
     color: str | None = None
 
-    @validator('created_at', 'changed_at', pre=True)
+    @validator('created_at', 'changed_at', 'deadline', pre=True)
     def convert_timestamp(cls, v):
         if isinstance(v, int):
             try:
