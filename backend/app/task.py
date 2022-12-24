@@ -28,7 +28,6 @@ class TaskService(interfaces.TaskService):
                 raise NonExistentTaskIDError(task_id)
         return task, curr_revision
 
-
     async def add_tasks(self, user_id: str, tasks: list[Task]) -> int:
         async with self._engine.begin() as conn:
             curr_revision = await self._repo.get_revision(conn, user_id)
