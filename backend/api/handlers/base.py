@@ -1,7 +1,8 @@
 from aiohttp import web
 
-from backend.api.models import DEVICE_ID_HEADER
 from backend.models import UserInfo
+
+DEVICE_ID_HEADER = "X-Device-Id"
 
 
 class BaseHandler(web.View):
